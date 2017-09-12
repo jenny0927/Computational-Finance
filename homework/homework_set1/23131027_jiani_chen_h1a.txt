@@ -1,0 +1,192 @@
+//ID: 23131027
+//Name: Jiani Chen
+
+//futureValue
+#include <iostream> 
+#include <cmath>
+#include<cstdio>
+using namespace std; 
+
+double future_value(double F0, double t0, double t1, double r);
+
+int main(){
+	double cashValue = 100;
+	double interestRate = 5.0;
+	int todayTime = 1;
+	int futureTime = 2; 
+	int day = futureTime - todayTime;
+	cout << "Today's cash value is $" << cashValue << endl;
+	cout << day << " day(s) later, ";
+	cout << "the future value is $"<< future_value(cashValue,todayTime,futureTime,interestRate);
+	return 0;
+}
+
+
+double future_value(double F0, double t0, double t1, double r)
+{
+	double r_decimal = 0.01*r;
+	double F1 = F0*exp(r_decimal*(t1-t0));
+	return F1;
+}
+
+
+#include <iostream> 
+#include <cmath>
+#include<cstdio>
+using namespace std; 
+
+int df_and_r(double F0, double F1, double t0, double t1, double & df, double & r); 
+
+int main(){
+	double todayCashValue = 100;
+	double futureCashValue = 500;
+	double interestRate = 0.0;
+	int todayTime = 1;
+	int futureTime = 365; 
+	double df = 0;
+	int day = futureTime - todayTime;
+	cout << "Today's cash value is $" << todayCashValue << endl;
+	cout << "Future's cash value is $" << futureCashValue << endl;
+
+	df_and_r(todayCashValue, futureCashValue, todayTime, futureTime, df, interestRate);
+	cout << " with the day interest rate of " << interestRate << "% " << endl;
+	return 0;
+}
+
+//D=1/(1+P)^n
+int df_and_r(double F0, double F1, double t0, double t1, double & df, double & r)
+{
+	if (t1-t0 == 0.0) {
+		df = 0;
+		r = 0;
+		return -1;
+	}
+	if ((F0 < 0.0) || (F1 < 0.0)) {
+		df = 0;
+		r = 0;
+		return -2;
+	}
+	
+	r = (F1-F0)/(t1-t0);
+	df = 1/exp(1+r);
+	cout << "Discount factor is " << df*100 <<"%";
+	return 0;
+}
+
+
+
+#include <iostream> 
+#include <cmath>
+#include<cstdio>
+using namespace std; 
+
+void price_from_yield(double F, double c, double y, int n, double & B);
+
+
+int main(){
+	double cashValue = 100;
+	double coupon = 1;
+	double yield = 4; 
+	int n = 10;
+	double bondPrice = 0.0;
+	
+	cout << "Today's cash value is $" << cashValue << endl;
+	price_from_yield(cashValue,coupon,yield,n,bondPrice);
+	return 0;
+}
+
+// 
+void price_from_yield(double F, double c, double y, int n, double & B){
+	double interestPayment = F/n/2;
+	if(y==c) B = F;
+	if(y==0) B = F + (n*c)/2;
+	if(c==0) B = F / exp(1+y/2);
+	for(int i =1; i < n ; i++){
+		double currentValue =  interestPayment / pow((1+y*0.01),i);
+		B = B + currentValue;
+		cout << i << "th period: " << currentValue << endl;
+	}
+	cout << n << "th period: " << (F + interestPayment) / pow((1+y*0.01),n) << endl;
+	B = B + (F + interestPayment) / pow((1+y*0.01),n);
+	cout << "bond value is " << B << endl;
+	cout << "bond price is " << B/n;
+} 
+
+
+
+#include <iostream> 
+#include <cmath>
+#include<cstdio>
+using namespace std; 
+
+int yield_from_price(double F, double c, int n, double B_market, double tol, int max_iter, double & y);
+double price_from_yield(double F, double c, double y, int n, double & B);
+
+int main(){
+	double todayCashValue = 100;
+	double coupon = 1;
+	double yield = 0; 
+ 	int n = 10;
+ 	double B_market = 100;
+	double bondPrice = 0.0;
+	double tol = 0.1;
+	int max_iter =10;
+
+	cout <<	yield_from_price(todayCashValue, coupon, n, B_market, tol, max_iter, yield);
+
+	return 0;
+}
+
+double price_from_yield(double F, double c, double y, int n, double & B){
+	double interestPayment = F/n/2;
+	if(y==c) B = F;
+	if(y==0) B = F + (n*c)/2;
+	if(c==0) B = F / exp(1+y/2);
+	for(int i =1; i < n ; i++){
+		double currentValue =  interestPayment / pow((1+y*0.01),i);
+		B = B + currentValue;
+	}	
+	B = B + (F + interestPayment) / pow((1+y*0.01),n);
+	return B;
+}
+
+int yield_from_price(double F, double c, int n, double B_market, double tol, int max_iter, double & y){
+	double y_low = 0.0;
+	double y_high = 100.0;
+	double B_y_low, B_y_high, B;
+	
+	B_y_low = price_from_yield(F, c, y_low, n, B_y_low);
+	cout << "B_y_low " << B_y_low << endl;
+	if(abs(B_y_low - B_market) <= tol) {
+		y = y_low;
+		return 0; 
+	} 
+	if(B_y_low < B_market) {
+		y= 0; 
+		return 1;
+	}
+	
+	B_y_high = price_from_yield(F, c, y_high, n, B_y_high);
+	cout << "B_y_high " << B_y_high << endl;
+	if(abs(B_y_high - B_market) > tol) {
+		y = y_high;
+		return 0; 
+	} 
+	if(B_y_high > B_market){
+		y= 0; 
+		return 1;
+	}
+
+	for(int i = 0; i< max_iter; ++i){
+		y = (y_high + y_low)/2;
+		B = price_from_yield(F, c, y, n, B);	
+
+		cout << "B " << B << endl;
+		if(abs(B - B_market) <= tol) 	return 0; 
+		if(B > B_market)  y_low = y;
+		if(B < B_market)  y_high = y;
+		if (y_high - y_low <= tol) return 0;
+	}
+	y = 0; 
+	return 0;
+}

@@ -7,10 +7,10 @@ int df_and_r(double F0, double F1, double t0, double t1, double & df, double & r
 
 int main(){
 	double todayCashValue = 100;
-	double futureCashValue = 500;
+	double futureCashValue = 200;
 	double interestRate = 0.0;
 	int todayTime = 1;
-	int futureTime = 365; 
+	int futureTime = 2; 
 	double df = 0;
 	int day = futureTime - todayTime;
 	cout << "Today's cash value is $" << todayCashValue << endl;
@@ -35,8 +35,9 @@ int df_and_r(double F0, double F1, double t0, double t1, double & df, double & r
 		return -2;
 	}
 	
-	r = (F1-F0)/(t1-t0);
-	df = 1/exp(1+r);
-	cout << "Discount factor is " << df*100 <<"%";
+	df = F0/F1;
+	r = (1/df-1)/(t1-t0);
+	cout << "Discount factor is " << df;
+	
 	return 0;
 }
